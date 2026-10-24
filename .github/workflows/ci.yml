@@ -68,7 +68,7 @@ jobs:
           ros2 topic pub -r 10 /cmd_vel_unsafe geometry_msgs/msg/Twist "{linear: {x: 0.5}}" &> /dev/null &
           PUB_PID=$!
           sleep 8
-          RESULT=$(timeout 15 ros2 topic echo --once /cmd_vel sensor_msgs/msg/Twist \
+          RESULT=$(timeout 15 ros2 topic echo --once /cmd_vel geometry_msgs/msg/Twist \
             | grep -A1 "linear:" | grep "x:" | awk '{print $2}')
           if [ "$RESULT" != "0.5" ]; then
             echo "Safety gate did not pass cmd_vel through (got: '$RESULT')"
