@@ -179,6 +179,14 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 
 **Questions for MirrorMe at delivery:** payload rail voltage/current + connector; switched vs always-on rails; mounting bosses/pattern on spine & head; recommended CG limits for payloads.
 
+**Official robot model (BPX Discord `bpx_urdf` package, integrated into `bpx_description` Oct 2026):**
+- Real kinematics/inertias/meshes (URDF + OBJ meshes; package also ships MuJoCo XML and USD for Isaac — kept out of the repo, source retained in `~/Downloads/bpx_urdf/`)
+- Base link `torso` = 3.309 kg; whole robot ≈ **13.8 kg** (3.309 + 4×(0.588 hip + 1.74 thigh + 0.294 calf + 0.005 toe))
+- Geometry: hip roll at (±0.2432, ±0.056, 0); thigh 0.23 m; calf→toe 0.2427 m; hip pitch offset ±0.1089 m
+- Limits: hip roll ±0.8727 rad; hip pitch −0.7854…2.6066; knee −2.7531…−0.5539 (knee always flexed); **effort 30 N·m**, velocity 20 rad/s — note SDK joint-level control can exceed these; clamp in software
+- Body collision box 0.36×0.16×0.15 m with nose/tail bumper boxes at x=±0.285
+- Axes confirmed identical to SDK expectations; joint names match `JointIndex` 1:1
+
 ---
 
 ## 10. Key Links

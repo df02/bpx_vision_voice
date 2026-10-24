@@ -118,8 +118,14 @@ ros2 topic echo /bpx_safety/active
 
 ## Notes
 
-- Joint limits, kinematic offsets, axes, and inertias in `bpx_description`
-  are **placeholders** — replace with values from MirrorMe CAD/datasheets.
+- `bpx_description` now carries the **official BPX model** (kinematics,
+  inertias, meshes) from the MirrorMe BPX Discord package. Joint
+  names/order match the SDK, so bridge `joint_states` drive it directly.
+- Community additions in the URDF: Insight 9 camera mount frames — the
+  mount pose is a **placeholder** to calibrate against the real
+  perception head.
+- The "root link has inertia" KDL warning at startup is expected (the
+  official model defines torso inertia) and harmless for visualization.
 - SDK protocol has no authentication: keep the robot network isolated.
 - Gait velocity limits (`bpx_sdk_open` README): Walk `[1.5, 0.5, 2.0]`,
   Bipedal `[0.8, 0.5, 1.5]`, WalkPhase `[1.5, 1.0, 2.0]`, Running

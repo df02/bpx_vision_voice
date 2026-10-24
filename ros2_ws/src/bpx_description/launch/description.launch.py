@@ -17,7 +17,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     default_urdf = os.path.join(
-        get_package_share_directory('bpx_description'), 'urdf', 'bpx.urdf.xacro')
+        get_package_share_directory('bpx_description'), 'urdf', 'bpx.urdf')
 
     urdf_arg = DeclareLaunchArgument(
         'urdf', default_value=default_urdf,

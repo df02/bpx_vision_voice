@@ -24,7 +24,7 @@ def generate_launch_description():
     pkg_description = get_package_share_directory('bpx_description')
 
     default_config = os.path.join(pkg_bringup, 'config', 'bpx_bridge.yaml')
-    default_urdf = os.path.join(pkg_description, 'urdf', 'bpx.urdf.xacro')
+    default_urdf = os.path.join(pkg_description, 'urdf', 'bpx.urdf')
 
     robot_ip_arg = DeclareLaunchArgument(
         'robot_ip', default_value='10.21.20.1',
