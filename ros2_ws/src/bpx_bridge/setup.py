@@ -15,7 +15,7 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Dean',
+    maintainer='Dean Ferraro',
     maintainer_email='df02@users.noreply.github.com',
     description='ROS 2 bridge for the MirrorMe Black Panther X (BPX) robot.',
     license='Apache-2.0',

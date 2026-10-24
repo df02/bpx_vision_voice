@@ -15,7 +15,7 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Dean',
+    maintainer='Dean Ferraro',
     maintainer_email='df02@users.noreply.github.com',
     description='Depth-based obstacle stop / slow arbiter for the BPX quadruped.',
     license='Apache-2.0',

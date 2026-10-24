@@ -4,7 +4,7 @@
   <name>bpx_bridge</name>
   <version>0.1.0</version>
   <description>ROS 2 bridge for the MirrorMe Black Panther X (BPX) robot, wrapping the official bpx_sdk_open Python bindings.</description>
-  <maintainer email="df02@users.noreply.github.com">Dean</maintainer>
+  <maintainer email="df02@users.noreply.github.com">Dean Ferraro</maintainer>
   <license>Apache-2.0</license>
 
   <depend>rclpy</depend>
