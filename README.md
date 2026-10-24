@@ -23,7 +23,7 @@ no cloud services required.
 ## Hardware used in this project
 
 - **Robot:** MirrorMe Black Panther X (Allwinner A733-based; used as-is via its network SDK)
-- **Compute:** NVIDIA Jetson Orin NX Super 16 GB (primary brain), Raspberry Pi 5 (planned: voice front-end)
+- **Compute:** NVIDIA Jetson Orin NX Super 16 GB — the single brain for **both vision and voice** (the Insight 9's on-device processing keeps the Jetson's GPU free for the LLM)
 - **Camera:** Looper Robotics **Insight 9** spatial AI camera (ROS 2 Humble, on-device SLAM)
 
 Other BPX-compatible depth cameras (RealSense D435/D555, Manifold Odin1) can be

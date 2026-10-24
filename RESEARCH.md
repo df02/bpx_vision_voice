@@ -85,12 +85,15 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 
 | Board | CPU | AI perf | Role |
 |---|---|---|---|
-| Raspberry Pi 5 (16 GB) | 4× A76 @ 2.4 GHz | none (optional Hailo) | Audio front-end / wake word / teleop UI |
+| Raspberry Pi 5 (16 GB) | 4× A76 @ 2.4 GHz | none (optional Hailo) | Bench/dev machine; optional audio front-end |
 | Jetson Orin Nano Super 8 GB | 6× A78AE | 67 TOPS sparse INT8 (JetPack 6.2+), 102 GB/s | Dev bench; STT/TTS; 3–4B LLM |
-| **Jetson Orin NX Super 16 GB** | 8× A78AE | ~157 TOPS sparse INT8 (Super Mode), ~136 GB/s | **Primary brain**: Insight 9 host, perception, VLM, 7–8B LLM |
+| **Jetson Orin NX Super 16 GB** | 8× A78AE | 157 TOPS sparse INT8 (Super: 77 GPU + 80 on 2×DLA), 102 GB/s | **Primary brain: vision AND voice (single-board)** |
 
-- Enable **Super Mode** via JetPack 6.2+.
-- LLM sizing on Orin NX 16 GB: Qwen3-4B / Llama-3.1-8B Q4 comfortable; 14B is the ceiling.
+**Compute decision (Oct 2026): voice runs on the Jetson too — no RPi in the loop.** Rationale:
+- The Insight 9 offloads the *continuous* vision work (depth/SLAM/detection on its 10 TOPS BPU), so the Jetson GPU is mostly idle between voice bursts. Voice is bursty and small: wake word (a few % of one core) + whisper.cpp on GPU (sub-second for 3 s clips) + 4B LLM Q4 (~20–40 tok/s decode, ~4.5 GB incl. KV cache) + Piper TTS (~5–10% CPU).
+- Memory budget (16 GB): OS+ROS ≈ 2 GB, 4B LLM ≈ 4.5 GB, Whisper ≈ 0.5 GB, TensorRT vision ≈ 1 GB → ~8 GB used, ample headroom. An 8B Q4 LLM also fits.
+- Measured Orin NX 16 GB Super LLM speeds (JetPack 6.2, llama.cpp/MLC): Llama 3.1 8B Q4 ≈ 18–23 tok/s; Qwen 2.5 7B ≈ 20–23.5; 3B ≈ 40+; 1.7B ≈ 60–69; 14B ≈ 7 (practical ceiling). Note: Super Mode raises clocks but **not** memory bandwidth on the NX (stays 102 GB/s) — decode is bandwidth-bound.
+- Raspberry Pi **AI HAT+ 2** (Hailo-10H, 40 TOPS INT4, 8 GB dedicated RAM, ~$130–200, Jan 2026) runs ≤6–7B LLMs/VLMs/Whisper with Ollama integration — but duplicates what the Jetson does better (larger models, CUDA/TensorRT/VLM ecosystem, same box as vision). **Not added.** Revisit only if: (a) a resident continuous VLM is needed alongside a large LLM, (b) battery runtime demands a ~10 W always-on audio path, or (c) redundancy is desired.
 - Network: Jetson ↔ BPX via RJ45 (`10.21.20.1` net); Insight 9 ↔ Jetson via USB-C virtual Ethernet. ROS 2 spans both links with Cyclone DDS.
 
 ---
