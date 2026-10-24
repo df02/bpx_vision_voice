@@ -154,7 +154,34 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 
 ---
 
-## 9. Key Links
+## 9. Mounting & Power Plan (payload integration)
+
+**Payload manifest (thanks to the single-Jetson + on-camera-AI decisions):**
+
+| Item | Weight | Power | Location |
+|---|---|---|---|
+| Jetson Orin NX + carrier | ~300–500 g | 15–40 W (mode-dep.) | Spine/body cavity, printed cradle |
+| Insight 9 | 176 g | 5 W | Perception head (stiff mount!) |
+| USB mic + speaker + amp | ~100 g | 1–3 W | Head or shell |
+| **Total** | **< 1 kg of 8 kg** | **~20–30 W typ, ~45 W peak** | **2 active devices + passive audio** |
+
+**Power principles:**
+- Zero-or-one converter rule: choose a Jetson carrier with **wide-range input (7–36 V)** and feed from the BPX battery rail via fuse + filter. Insight 9 needs 5 V/2 A USB-C (small buck or carrier USB port). No intermediate 12 V rail.
+- Walk in the **25 W power mode**, reserve MAXN SUPER (40 W) for bench. Software-only switch (`nvpmodel`).
+- Estimated range impact: ~10% (vs typical 150–300 W locomotion draw). Confirm BPX battery Wh + whether payload rails are switched or always-on.
+
+**Mounting principles (4 m/s quadruped):**
+1. Vibration: Jetson SO-DIMM connector is the failure point — printed cradle + foam/gel pads + screws w/ threadlocker; strap the NVMe. Insight 9 on a stiff mount so SLAM isn't degraded by flex (its 24 g IMU assumes legged shock).
+2. Camera high on perception head; Jetson low on spine for CG (720° flips!). Head mount must be rigid.
+3. Ventilate the printed shell over the Jetson heatsink (shells are 3D-printable — use that).
+4. Three cables total: battery→Jetson, Jetson USB→camera, USB→audio. Strain-relief everywhere; keep audio lines away from motor power runs (servo EMI on mic lines).
+5. Quick-release tray (printed dovetail) for the Jetson → easy bench development with mock mode.
+
+**Questions for MirrorMe at delivery:** payload rail voltage/current + connector; switched vs always-on rails; mounting bosses/pattern on spine & head; recommended CG limits for payloads.
+
+---
+
+## 10. Key Links
 
 - BPX: https://www.mirrorme.bot/ · https://www.mirrormetech.com/en/product_4.html
 - **BPX SDK: https://github.com/mirrormerobotics/bpx_sdk_open** (local: `~/bpx-project/bpx_sdk_open/`)
