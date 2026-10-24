@@ -90,7 +90,7 @@ cd ~/bpx-project          # after Part 4, or clone first (see note below)
 ```
 
 > 📌 If you don't have the repo yet, grab it first:
-> `git clone https://github.com/YOUR-USERNAME/bpx-vision-voice.git ~/bpx-project`
+> `git clone https://github.com/df02/bpx_vision_voice.git ~/bpx-project`
 
 Option B — **manual**: copy-paste these blocks one at a time.
 
@@ -124,7 +124,7 @@ ros2 topic list
 
 ```bash
 # 1. Get this project
-git clone https://github.com/YOUR-USERNAME/bpx-vision-voice.git ~/bpx-project
+git clone https://github.com/df02/bpx_vision_voice.git ~/bpx-project
 cd ~/bpx-project
 ```
 
@@ -385,7 +385,7 @@ streams ready-made ROS 2 topics over USB.
 | WiFi drops while walking | Expected with the hotspot; robot re-arms required. Use the Ethernet cable. |
 | `ROS_TIME` / time warnings at startup | Harmless during the first seconds while clocks sync |
 
-Still stuck? [Open an issue](https://github.com/YOUR-USERNAME/bpx-vision-voice/issues)
+Still stuck? [Open an issue](https://github.com/df02/bpx_vision_voice/issues)
 with: the exact command you ran, the full terminal output, and your hardware
 (BPX model, Jetson model, camera).
 
