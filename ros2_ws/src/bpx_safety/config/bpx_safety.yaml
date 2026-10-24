@@ -1,0 +1,33 @@
+# bpx_safety configuration.
+#
+# Command flow:
+#   cmd_vel sources publish to cmd_vel_unsafe
+#   bpx_safety gates them and republishes to cmd_vel
+#   bpx_bridge subscribes to cmd_vel
+#
+# TODO(sensor): Insight 9 topic names are placeholders until confirmed
+# from the Looper Robotics developer guide / running camera.
+bpx_safety:
+  ros__parameters:
+    depth_topic: "/insight9/depth"
+    camera_info_topic: "/insight9/camera_info"
+    cmd_vel_in: "cmd_vel_unsafe"
+    cmd_vel_out: "cmd_vel"
+
+    enabled: true
+    mode: "stop"              # "stop" = zero cmd_vel, "slow" = scale down
+    slow_scale: 0.3
+
+    stop_distance: 1.2        # m, forward distance of the stop zone
+    cone_half_angle_deg: 30.0 # horizontal half-angle of the zone
+    min_point_height: -0.30   # m above camera; excludes floor
+    max_point_height: 1.50    # m above camera; excludes ceiling
+    min_points: 8             # decimated points in zone required to trigger
+    pixel_step: 6             # depth decimation (1 = every pixel)
+    clear_time: 1.0           # s the zone must stay clear to release
+
+    # Fallback intrinsics until CameraInfo is received.
+    fallback_image_width: 1280
+    fallback_image_height: 960
+    fallback_hfov_deg: 115.6  # Insight 9 depth stereo FOV (horizontal)
+    fallback_vfov_deg: 96.0   # TODO(sensor): confirm from Looper docs

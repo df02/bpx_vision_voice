@@ -1,0 +1,31 @@
+# bpx_bridge configuration.
+#
+# Robot IPs (bpx_sdk_open README):
+#   RJ45 direct:  10.21.20.1
+#   WiFi AP:      10.21.40.1
+#   Station WiFi: DHCP-assigned robot IP
+bpx_bridge:
+  ros__parameters:
+    robot_ip: "10.21.20.1"
+    state_upload_rate: 100        # 1..200 Hz (robot falls back to 100 if invalid)
+    motion_command_rate: 50       # Hz
+
+    # Publish rates (Hz). Set 0 to disable a publisher.
+    joint_state_publish_rate: 100.0
+    imu_publish_rate: 100.0
+    odom_publish_rate: 50.0
+    diagnostics_publish_rate: 1.0
+
+    publish_tf: true
+    odom_frame: "odom"
+    base_frame: "base_link"
+    imu_frame: "base_link"        # TODO(sensor): confirm IMU frame from vendor
+
+    # cmd_vel watchdog: publish zero velocity if the stream goes stale.
+    cmd_vel_timeout: 0.5          # seconds; 0 disables
+
+    # Gait velocity clamps (Walk limits from bpx_sdk_open README).
+    # The robot further reduces lateral/yaw authority as |x| grows.
+    max_vel_x: 1.5
+    max_vel_y: 0.5
+    max_vel_yaw: 2.0
