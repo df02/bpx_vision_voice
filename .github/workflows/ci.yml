@@ -11,6 +11,9 @@ jobs:
     name: Build + smoke test (ROS 2 Humble)
     runs-on: ubuntu-22.04
     container: ros:humble-ros-base
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
