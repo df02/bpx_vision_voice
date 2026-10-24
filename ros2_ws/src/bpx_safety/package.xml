@@ -4,7 +4,7 @@
   <name>bpx_safety</name>
   <version>0.1.0</version>
   <description>Depth-based obstacle stop / slow arbiter for the BPX quadruped, gating cmd_vel between command sources and bpx_bridge.</description>
-  <maintainer email="dean@localhost">Dean</maintainer>
+  <maintainer email="df02@users.noreply.github.com">Dean</maintainer>
   <license>Apache-2.0</license>
 
   <depend>rclpy</depend>

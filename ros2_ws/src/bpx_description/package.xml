@@ -4,7 +4,7 @@
   <name>bpx_description</name>
   <version>0.1.0</version>
   <description>URDF description of the MirrorMe Black Panther X (BPX) quadruped.</description>
-  <maintainer email="dean@localhost">Dean</maintainer>
+  <maintainer email="df02@users.noreply.github.com">Dean</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
