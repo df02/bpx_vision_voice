@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-smoke-test:
+    name: Build + smoke test (ROS 2 Humble)
+    runs-on: ubuntu-22.04
+    container: ros:humble-ros-base
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq git python3-pip build-essential python3-dev
+          pip3 install --upgrade pip numpy
+
+      # Compile MirrorMe's official Python bindings against our code so that
+      # new SDK releases are caught by CI before they hit users.
+      - name: Install BPX SDK (Python bindings)
+        run: |
+          git clone --depth 1 https://github.com/mirrormerobotics/bpx_sdk_open.git /tmp/bpx_sdk_open
+          pip3 install /tmp/bpx_sdk_open
+          python3 -c "import bpx_sdk; print('BPX SDK import OK')"
+
+      - name: Install workspace dependencies (rosdep)
+        run: |
+          source /opt/ros/humble/setup.bash
+          rosdep init || true
+          rosdep update
+          rosdep install --from-paths ros2_ws/src --ignore-src -y
+
+      - name: Build workspace
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ros2_ws
+          colcon build --symlink-install
+
+      - name: Smoke test — bpx_bridge (SDK present, robot absent)
+        run: |
+          source /opt/ros/humble/setup.bash
+          source ros2_ws/install/setup.bash
+          ros2 launch bpx_bridge bpx_bringup.launch.py &> /tmp/bridge.log &
+          BRIDGE_PID=$!
+          sleep 15
+          ros2 topic list | grep -q /bpx_bridge/joint_states
+          timeout 15 ros2 topic echo /bpx_bridge/joint_states --once | grep -q fl_hip_roll_joint
+          grep -q "/bpx_bridge/odom" <(ros2 topic list)
+          kill $BRIDGE_PID || true
+          echo "bpx_bridge smoke test OK"
+
+      - name: Smoke test — bpx_safety gate passes commands when clear
+        run: |
+          source /opt/ros/humble/setup.bash
+          source ros2_ws/install/setup.bash
+          ros2 run bpx_safety bpx_safety_node &> /tmp/safety.log &
+          SAFETY_PID=$!
+          ros2 topic pub -r 10 /cmd_vel_unsafe geometry_msgs/msg/Twist "{linear: {x: 0.5}}" &> /dev/null &
+          PUB_PID=$!
+          sleep 8
+          RESULT=$(timeout 15 ros2 topic echo /cmd_vel --once | grep -A1 "linear:" | grep x: | awk '{print $2}')
+          if [ "$RESULT" != "0.5" ]; then
+            echo "Safety gate did not pass cmd_vel through (got: '$RESULT')"
+            cat /tmp/safety.log
+            exit 1
+          fi
+          kill $SAFETY_PID $PUB_PID || true
+          echo "bpx_safety smoke test OK"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-logs
+          path: |
+            /tmp/bridge.log
+            /tmp/safety.log
+          if-no-files-found: ignore
