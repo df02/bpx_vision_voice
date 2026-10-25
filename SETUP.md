@@ -67,10 +67,20 @@ The Jetson needs **JetPack 6.2.3 or newer 6.2.x** (Ubuntu 22.04 preinstalled).
 > DeepStream is multi-stream video analytics — we have one camera whose
 > on-board NPU already runs detection. Holoscan is an ultra-low-latency
 > sensor framework for special bridge hardware — not our path. Both can be
-> added later without reflashing. DO make sure the core JetPack components
-> are selected: **CUDA, cuDNN, TensorRT, OpenCV (CUDA), and the NVIDIA
-> Container Toolkit** — the voice (whisper.cpp/llama.cpp) and vision stacks
-> need them. Use an NVMe SSD, not an SD card, as root storage
+> added later without reflashing.
+>
+> **Jetson Platform Services: skip too** — it's a Docker microservices suite
+> for commercial video/analytics deployments, unrelated to a ROS 2 robot.
+>
+> **Runtime vs SDK components: choose the full SDK/development components
+> for the Jetson.** Runtime-only CUDA omits `nvcc` and headers, but we
+> *compile* whisper.cpp and llama.cpp with CUDA on-board (voice phase), so
+> the dev toolchain must be present.
+>
+> DO make sure these are selected: **CUDA (dev), cuDNN, TensorRT, OpenCV
+> (CUDA), and the NVIDIA Container Toolkit**. Skip "Sources" packages
+> (kernel/BSP dev only) and host-side components beyond the flasher.
+> Use an NVMe SSD, not an SD card, as root storage
 > (a 256 GB NVMe is confirmed for this build — ample: full stack + models +
 > containers land well under 100 GB; just watch rosbag recordings).
 
