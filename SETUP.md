@@ -460,6 +460,23 @@ Useful facts (firmware v2.1.4): IMU publishes at 400 Hz; stereo runs
 the RGB stream is portrait-oriented (1088×1920 default MJPEG); on-device
 YOLO models (person detection) can be flashed from the web dashboard.
 
+### Recommended dashboard settings (looper.local)
+
+| Setting | Value | Why |
+|---|---|---|
+| Depth output | **ON** | Required by `bpx_safety` (obstacle gate) |
+| Pose with covariance | **ON** | `/camera/camera/vio_image_cov` — the EKF in `bpx_nav` needs VIO *with* covariance; cheap bandwidth; keeps recorded bags complete |
+| Detection model | **Flash the human/person detection model** (Model setting / Model writing menus) | Required by `bpx_follow`. Model "writing" = flashing via Looper's website (convert online → redirect to device flash page) |
+
+After flashing a detection model, confirm the detection topic name and
+message type — `bpx_follow` assumes `vision_msgs/Detection2DArray` and
+its config is adjustable if the camera publishes differently:
+
+```bash
+ros2 topic list | grep -i -E "detect|yolo|person"
+ros2 topic info <topic>
+```
+
 > If discovery fails: restart the ROS 2 daemon (`ros2 daemon stop &&
 > ros2 daemon start`), verify the cable, and check the device address
 > (`169.254.10.1` by default). Don't hand-edit the host's virtual network
