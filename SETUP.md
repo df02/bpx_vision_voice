@@ -70,7 +70,9 @@ The Jetson needs **JetPack 6.2.3 or newer 6.2.x** (Ubuntu 22.04 preinstalled).
 > added later without reflashing. DO make sure the core JetPack components
 > are selected: **CUDA, cuDNN, TensorRT, OpenCV (CUDA), and the NVIDIA
 > Container Toolkit** — the voice (whisper.cpp/llama.cpp) and vision stacks
-> need them. Use an NVMe SSD, not an SD card, as root storage.
+> need them. Use an NVMe SSD, not an SD card, as root storage
+> (a 256 GB NVMe is confirmed for this build — ample: full stack + models +
+> containers land well under 100 GB; just watch rosbag recordings).
 
 1. On your second computer, install and open **NVIDIA SDK Manager**.
 2. Sign in with an NVIDIA developer account, select your Jetson module
