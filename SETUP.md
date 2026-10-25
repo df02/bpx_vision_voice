@@ -52,11 +52,20 @@ in a **terminal** — open one with `Ctrl+Alt+T` on Ubuntu.
 
 ## Part 2 — Jetson setup (Ubuntu + JetPack)
 
-The Jetson needs NVIDIA's **JetPack 6.2 or newer** (Ubuntu 22.04 preinstalled).
+> **Which JetPack?** Use **JetPack 6.2.3** (L4T 36.5.2, Ubuntu 22.04).
+> JetPack 7.2.x exists for the Orin NX, but it's Ubuntu 24.04 → ROS 2 Jazzy,
+> and our camera (Insight 9) ships ROS 2 Humble — mixing Humble and Jazzy in
+> one ROS network is unsupported and painful. JP7.2's Orin support is also
+> young (known boot-issue overlay, prerelease PyTorch wheels, no r39 AI
+> containers yet). Plan the JP7.2 + Jazzy migration when ROS 2 Humble nears
+> end-of-life (May 2027) or when you start heavy LLM work — see
+> `RESEARCH.md` §5.
+
+The Jetson needs **JetPack 6.2.3 or newer 6.2.x** (Ubuntu 22.04 preinstalled).
 
 1. On your second computer, install and open **NVIDIA SDK Manager**.
 2. Sign in with an NVIDIA developer account, select your Jetson module
-   (Orin NX 16 GB), and flash **JetPack 6.2.x**. Follow the wizard — it will
+   (Orin NX 16 GB), and flash **JetPack 6.2.3**. Follow the wizard — it will
    ask you to put the Jetson into recovery mode (usually: hold the RECOVERY
    button while pressing RESET, or per your carrier board's manual).
    - 📖 NVIDIA's official walkthrough: https://docs.nvidia.com/jetpack/

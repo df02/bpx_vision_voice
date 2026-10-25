@@ -117,7 +117,8 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 - Clone SDK (done: `bpx_sdk_open/`); build examples; `pip install ./bpx_sdk_open` on Jetson and dev machine
 - Ping `10.21.20.1`, run `request_robot_state_example` — confirm telemetry (joints, IMU, odom, battery)
 - Run `motion_level_control_server_example` → `stand`, `sit`, small `velocity` commands on a test stand/tether
-- Flash Jetson: JetPack 6.2+, Super Mode, ROS 2 Humble + Cyclone DDS; install Insight 9 SDK, verify topics appear
+- Flash Jetson: **JetPack 6.2.3 (L4T 36.5.2)**, Super Mode, ROS 2 Humble + Cyclone DDS; install Insight 9 SDK, verify topics appear
+  - *Why not 7.2.1:* JP7.2 (June 2026) is Ubuntu 24.04 → ROS 2 Jazzy, clashing with the Insight 9's preinstalled Humble (mixed Humble/Jazzy domains unsupported; documented OOM/topic issues under Fast DDS, Cyclone only mitigates). JP7.2 Orin ecosystem immature: NVIDIA boot-fix overlay for Orin NX/Nano, prerelease PyTorch wheels, no r39 jetson-containers. The ~30–40% LLM speedup matters only in Phase 3+. Migration trigger: Humble EOL (May 2027) or mature r39 container/wheel ecosystem — our stack is pure ament_python + URDF, so the port is cheap and CI-verifiable.
 - Probe `ControlMode` / Navigator switching behavior
 
 **Phase 1 — Vision foundation**
