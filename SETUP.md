@@ -63,6 +63,17 @@ in a **terminal** — open one with `Ctrl+Alt+T` on Ubuntu.
 
 The Jetson needs **JetPack 6.2.3 or newer 6.2.x** (Ubuntu 22.04 preinstalled).
 
+> ⚠️ **Flashing host OS — learn from our pain:**
+> - **Windows 11 does not work reliably** (SDK Manager isn't supported on
+>   Windows, and USB recovery-mode passthrough through WSL2/VMs fails
+>   unpredictably). Don't burn hours on it — go straight to a Linux host.
+> - **Ubuntu 26.04 does not work** with SDK Manager / JetPack 6.2.x — the
+>   SDK tooling lags the newest distro releases.
+> - **Use Ubuntu 24.04 LTS** (confirmed working in practice) or 22.04 LTS
+>   (the officially supported host). Both run fine from a USB stick /
+>   spare partition — you only need this host when (re)flashing.
+> - SDK Manager is not available for macOS.
+
 > **Optional SDKs in SDK Manager (DeepStream, Holoscan, etc.): skip them.**
 > DeepStream is multi-stream video analytics — we have one camera whose
 > on-board NPU already runs detection. Holoscan is an ultra-low-latency
