@@ -197,6 +197,10 @@ python3 -c "import bpx_sdk; print('BPX SDK OK')"
 ```bash
 cd ~/bpx-project/ros2_ws
 
+# Make sure the ROS 2 environment is loaded in THIS terminal
+# (rosdep needs it to know the distro; a fresh terminal after Part 3 has it via ~/.bashrc)
+source /opt/ros/humble/setup.bash
+
 # Install any missing ROS dependencies automatically
 rosdep update
 rosdep install --from-paths src --ignore-src -y
@@ -418,6 +422,7 @@ streams ready-made ROS 2 topics over USB.
 | `ping 10.21.20.1` gets no reply | Cable not clicked in; robot not fully booted; your Jetson's wired IP isn't set to `10.21.20.100`/netmask `255.255.255.0` (Part 7.1 step 3) |
 | Bridge says "Initial connect … failed" but ping works | Robot is on but its SDK server isn't up yet — wait ~30 s, or call the `~/reconnect` service; check firmware is current in the BPX app |
 | `colcon: command not found` | ROS 2 not in this terminal: `source /opt/ros/humble/setup.bash` (it's auto-sourced in new terminals if Part 3 step 3 was done) |
+| `ROS distro is not set` / `Cannot locate rosdep definition` | Same cause: source ROS first — `source /opt/ros/humble/setup.bash` — then re-run the `rosdep install` command |
 | `import bpx_sdk` fails | Rebuild it: `pip3 install --force-reinstall ./bpx_sdk_open`; if it complains about a compiler: `sudo apt install -y build-essential python3-dev` |
 | Topics appear on one terminal but not another | You forgot `source ~/bpx-project/ros2_ws/install/setup.bash` in that terminal |
 | Robot ignores `cmd_vel` | Bridge not armed: `ros2 service call /bpx_bridge/enable_motion std_srvs/srv/Trigger`; or the safety gate is blocking: check `ros2 topic echo /bpx_safety/active`; or the gait isn't `walk` |
