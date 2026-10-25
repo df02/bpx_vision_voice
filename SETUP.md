@@ -431,6 +431,25 @@ v2.1.4.)
    distance you're comfortable with. Adjust in
    `ros2_ws/src/bpx_safety/config/bpx_safety.yaml`.
 
+### Viewing the live image
+
+Easiest — `rqt_image_view` (handles the camera's compressed stream):
+
+```bash
+sudo apt install ros-humble-rqt-image-view
+rqt_image_view
+# pick: /camera/camera/color/image_rect_raw/compressed  from the dropdown
+```
+
+In RViz2: set **Fixed Frame** to `insight9_camera_link` (needs the robot
+description running, e.g. `ros2 launch bpx_bridge bpx_bringup.launch.py`),
+then **Add → By topic → /camera/camera/color/image_rect_raw/compressed →
+Image**. Save the config when it works.
+
+⚠️ Don't use `/camera/camera/color/image_raw` — it's NV12 format, which
+RViz2 cannot render. The `/compressed` MJPEG topic is the one to view.
+(The dashboard at `looper.local` also shows stream previews.)
+
 Useful facts (firmware v2.1.4): IMU publishes at 400 Hz; stereo runs
 20–50 fps; VIO pose is available at 100 Hz (`/camera/camera/vio_100hz`);
 the RGB stream is portrait-oriented (1088×1920 default MJPEG); on-device
