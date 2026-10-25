@@ -63,6 +63,15 @@ in a **terminal** — open one with `Ctrl+Alt+T` on Ubuntu.
 
 The Jetson needs **JetPack 6.2.3 or newer 6.2.x** (Ubuntu 22.04 preinstalled).
 
+> **Optional SDKs in SDK Manager (DeepStream, Holoscan, etc.): skip them.**
+> DeepStream is multi-stream video analytics — we have one camera whose
+> on-board NPU already runs detection. Holoscan is an ultra-low-latency
+> sensor framework for special bridge hardware — not our path. Both can be
+> added later without reflashing. DO make sure the core JetPack components
+> are selected: **CUDA, cuDNN, TensorRT, OpenCV (CUDA), and the NVIDIA
+> Container Toolkit** — the voice (whisper.cpp/llama.cpp) and vision stacks
+> need them. Use an NVMe SSD, not an SD card, as root storage.
+
 1. On your second computer, install and open **NVIDIA SDK Manager**.
 2. Sign in with an NVIDIA developer account, select your Jetson module
    (Orin NX 16 GB), and flash **JetPack 6.2.3**. Follow the wizard — it will
