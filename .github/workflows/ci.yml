@@ -78,6 +78,20 @@ jobs:
           kill $SAFETY_PID $PUB_PID || true
           echo "bpx_safety smoke test OK"
 
+      - name: Smoke test — bpx_follow starts and reports state
+        run: |
+          source /opt/ros/humble/setup.bash
+          source ros2_ws/install/setup.bash
+          ros2 run bpx_follow bpx_follow_node &> /tmp/follow.log &
+          FOLLOW_PID=$!
+          sleep 8
+          # Enable it (no camera in CI) — node must report its WAITING state.
+          ros2 service call /bpx_follow/enable std_srvs/srv/SetBool "{data: true}" &> /dev/null
+          timeout 15 ros2 topic echo --once /bpx_follow/status std_msgs/msg/String \
+            | grep -qE "WAITING|ACTIVE|LOST"
+          kill $FOLLOW_PID || true
+          echo "bpx_follow smoke test OK"
+
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

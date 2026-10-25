@@ -1,0 +1,43 @@
+# bpx_follow configuration.
+#
+# IMPORTANT — before enabling on hardware:
+#   1. Flash the person-detection model to the camera (looper.local
+#      dashboard) and confirm the detection topic name/type with:
+#        ros2 topic list | grep -i detect
+#        ros2 topic info <topic>
+#      The default below assumes vision_msgs/Detection2DArray — adjust if
+#      the camera publishes a different type.
+#   2. Enable depth output on the camera (off by default).
+#   3. Enable the safety gate (bpx_safety) — this node publishes to
+#      cmd_vel_unsafe so the obstacle gate stays in the loop.
+bpx_follow:
+  ros__parameters:
+    # Inputs (firmware v2.1.4 names; verify detection topic!)
+    detection_topic: "/camera/camera/detections"
+    detection_type: "vision_msgs/msg/Detection2DArray"
+    depth_topic: "/camera/camera/depth/image_rect_raw"
+    rgb_camera_info_topic: "/camera/camera/color/camera_info"
+    depth_camera_info_topic: "/camera/camera/infra1/camera_info"
+
+    # Output — through the safety gate, never directly to the bridge
+    cmd_vel_topic: "cmd_vel_unsafe"
+    status_topic: "~/status"
+
+    target_class: "person"
+    min_score: 0.5
+    enabled_on_start: false     # start disabled; call ~/enable to activate
+
+    # Following behavior (Walk-gait limits: max 1.5 m/s)
+    follow_distance: 1.5        # m, desired gap to the person
+    stop_distance: 1.0          # m, closer than this: hold position
+    max_speed: 1.0              # m/s
+    max_yaw: 1.0                # rad/s
+    k_vel: 0.8                  # velocity gain
+    k_yaw: 1.5                  # yaw gain (higher = snappier centering)
+
+    # Robustness
+    lost_timeout: 1.0           # s without a detection -> stop
+    depth_timeout: 0.5          # s without depth -> stop
+    min_depth_pixels: 15        # valid depth pixels required in sample box
+    depth_sample_radius: 25     # px half-size of the depth sample box
+    control_rate: 20.0          # Hz

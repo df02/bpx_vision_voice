@@ -13,10 +13,11 @@ ros2_ws/
     bpx_description/   URDF (12 joints, SDK names/order) + Insight 9 camera frames
     bpx_bridge/        SDK wrapper node: telemetry out, cmd_vel + services in
     bpx_safety/        Depth obstacle arbiter gating cmd_vel (stop/slow modes)
+    bpx_follow/        Person-following mode (onboard detection + depth → cmd_vel_unsafe)
 ```
 
 Planned packages (see ../RESEARCH.md roadmap):
-`bpx_perception` (Insight 9 detection/SLAM consumption),
+`bpx_nav` (EKF fusion: leg odom + VIO + IMU; depth→laserscan; slam_toolbox),
 `bpx_voice` (wake word → Whisper → LLM → Piper).
 
 ## Prerequisites

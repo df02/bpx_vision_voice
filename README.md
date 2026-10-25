@@ -17,7 +17,8 @@ no cloud services required.
 | [`bpx_bridge`](ros2_ws/src/bpx_bridge) | Connects ROS 2 to the BPX over Ethernet/WiFi using the official [`bpx_sdk_open`](https://github.com/mirrormerobotics/bpx_sdk_open): publishes joint states, IMU, and leg odometry; accepts `cmd_vel` and motion commands (stand, sit, gaits, jumps) via topics/services | ✅ scaffold, hardware validation pending |
 | [`bpx_safety`](ros2_ws/src/bpx_safety) | Depth-camera obstacle arbiter: stops or slows the robot when something is in a forward zone. Sits between your commands and the bridge | ✅ scaffold, tuning on hardware pending |
 | [`bpx_description`](ros2_ws/src/bpx_description) | Official BPX model (kinematics, inertias, meshes from MirrorMe's Discord package) + Insight 9 camera frames | ✅ official model, camera mount to calibrate |
-| `bpx_perception` | Consume Insight 9 onboard detection / SLAM into a world model | 🔜 planned |
+| [`bpx_follow`](ros2_ws/src/bpx_follow) | Person-following mode: Insight 9 onboard person detection + depth → velocity commands through the safety gate | ✅ scaffold, needs detection-topic confirmation on hardware |
+| `bpx_perception` / `bpx_nav` | Consume Insight 9 onboard detection / SLAM into a world model; EKF fusion + 2D mapping + Nav2 | 🔜 planned |
 | `bpx_voice` | Wake word → local Whisper STT → local LLM (tool calling) → Piper TTS, wired to the bridge services | 🔜 planned |
 
 ## Hardware used in this project
