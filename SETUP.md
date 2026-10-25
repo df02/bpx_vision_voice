@@ -433,18 +433,23 @@ v2.1.4.)
 
 ### Viewing the live image
 
-Easiest — `rqt_image_view` (handles the camera's compressed stream):
+Easiest — `rqt_image_view`. Install it **plus** the compressed-transport
+plugin (without it you'll get "Unable to load plugin for transport
+'image_transport/compressed_sub'" and no color picture):
 
 ```bash
-sudo apt install ros-humble-rqt-image-view
+sudo apt install ros-humble-rqt-image-view ros-humble-image-transport-plugins
 rqt_image_view
-# pick: /camera/camera/color/image_rect_raw/compressed  from the dropdown
+# pick the color topic ending in /compressed from the dropdown
 ```
 
 In RViz2: set **Fixed Frame** to `insight9_camera_link` (needs the robot
 description running, e.g. `ros2 launch bpx_bridge bpx_bringup.launch.py`),
-then **Add → By topic → /camera/camera/color/image_rect_raw/compressed →
-Image**. Save the config when it works.
+then **Add → By topic →** the color topic ending in **`/compressed`** **→
+Image**. Use the **Image** display, not the Camera display — the Camera
+display's topic dropdown only lists raw `sensor_msgs/Image` topics, which
+excludes the color stream (compressed) entirely. Save the config when it
+works.
 
 ⚠️ Don't use `/camera/camera/color/image_raw` — it's NV12 format, which
 RViz2 cannot render. The `/compressed` MJPEG topic is the one to view.
