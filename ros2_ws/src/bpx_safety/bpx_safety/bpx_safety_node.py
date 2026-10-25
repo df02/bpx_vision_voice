@@ -52,8 +52,8 @@ class BPXSafetyNode(Node):
         super().__init__('bpx_safety')
 
         # ---------------- Parameters ----------------
-        self.declare_parameter('depth_topic', '/insight9/depth')
-        self.declare_parameter('camera_info_topic', '/insight9/camera_info')
+        self.declare_parameter('depth_topic', '/camera/camera/depth/image_rect_raw')
+        self.declare_parameter('camera_info_topic', '/camera/camera/infra1/camera_info')
         self.declare_parameter('cmd_vel_in', 'cmd_vel_unsafe')
         self.declare_parameter('cmd_vel_out', 'cmd_vel')
         self.declare_parameter('enabled', True)

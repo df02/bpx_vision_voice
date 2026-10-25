@@ -5,12 +5,13 @@
 #   bpx_safety gates them and republishes to cmd_vel
 #   bpx_bridge subscribes to cmd_vel
 #
-# TODO(sensor): Insight 9 topic names are placeholders until confirmed
-# from the Looper Robotics developer guide / running camera.
+# Topic names per Insight 9 firmware v2.1.4 ROS-native bring-up guide
+# (looper-robotics.com). NOTE: depth output is DISABLED by default on the
+# camera (USB bandwidth) — enable it in the web dashboard at looper.local.
 bpx_safety:
   ros__parameters:
-    depth_topic: "/insight9/depth"
-    camera_info_topic: "/insight9/camera_info"
+    depth_topic: "/camera/camera/depth/image_rect_raw"
+    camera_info_topic: "/camera/camera/infra1/camera_info"
     cmd_vel_in: "cmd_vel_unsafe"
     cmd_vel_out: "cmd_vel"
 

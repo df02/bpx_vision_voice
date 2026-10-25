@@ -2,7 +2,7 @@
 
 Usage:
   ros2 launch bpx_safety bpx_safety.launch.py
-  ros2 launch bpx_safety bpx_safety.launch.py depth_topic:=/insight9/depth
+  ros2 launch bpx_safety bpx_safety.launch.py depth_topic:=/camera/camera/depth/image_rect_raw
 """
 
 import os
@@ -19,7 +19,7 @@ def generate_launch_description():
         get_package_share_directory('bpx_safety'), 'config', 'bpx_safety.yaml')
 
     depth_topic_arg = DeclareLaunchArgument(
-        'depth_topic', default_value='/insight9/depth',
+        'depth_topic', default_value='/camera/camera/depth/image_rect_raw',
         description='Depth image topic (32FC1 or 16UC1)')
     config_arg = DeclareLaunchArgument(
         'safety_config', default_value=default_config,

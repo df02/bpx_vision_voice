@@ -383,35 +383,63 @@ damping mode) and watch the model follow.
 
 ## Part 10 — Insight 9 camera
 
-The Insight 9 is special: it does its own depth + SLAM processing and just
-streams ready-made ROS 2 topics over USB.
+The Insight 9 is **ROS-native: there is no SDK or driver to install.** The
+camera runs its own ROS 2 node onboard and publishes topics directly when
+plugged in. (Guide: Looper's "Insight9 ROS Native Bring-Up Guide", firmware
+v2.1.4.)
 
-1. Connect the camera to the Jetson with a **USB-C data cable** (the camera
-   is powered over this same cable).
-2. Install the Looper Robotics SDK following their developer guide:
-   https://looper-robotics.com/ — it makes the camera appear as a network
-   device and starts its ROS 2 node.
-3. Find the actual topic names it publishes:
-
-   ```bash
-   ros2 topic list | grep -i insight   # adjust if named differently
-   ```
-
-4. Point the safety node at the real topics:
+1. Connect the camera to the Jetson with a **good USB-C data cable** —
+   rated 5 Gbps minimum, 10 Gbps recommended. Cheap cables power the camera
+   but starve its data link. The camera is powered over this same cable.
+2. Wait ~20 seconds for boot.
+3. In a terminal with ROS 2 sourced:
 
    ```bash
-   ros2 launch bpx_safety bpx_safety.launch.py depth_topic:=<the depth topic you found>
+   source /opt/ros/humble/setup.bash
+   ros2 topic list | grep camera
    ```
 
-5. **Calibrate the stop zone** (one-time, walking area setup): the defaults
+   ✅ You should see topics under `/camera/camera/`, including
+   `/camera/camera/imu`, `/camera/camera/vio_100hz`, and
+   `/camera/camera/vio_status`.
+
+4. Sanity checks:
+
+   ```bash
+   ros2 topic hz /camera/camera/imu        # should read ~400 Hz
+   ros2 topic echo /camera/camera/vio_status --once
+   ```
+
+5. **Enable depth** — it's disabled by default (USB bandwidth). Open the
+   camera's web dashboard at **http://looper.local** and toggle depth
+   output on. Then:
+
+   ```bash
+   ros2 topic hz /camera/camera/depth/image_rect_raw   # ~15 Hz
+   ```
+
+6. The safety node is preconfigured for these topic names — just launch it:
+
+   ```bash
+   ros2 launch bpx_safety bpx_safety.launch.py
+   ```
+
+7. **Calibrate the stop zone** (one-time): the defaults
    (`stop_distance: 1.2 m`, height band −0.3…+1.5 m relative to camera) are
-   conservative starting points. Walk an obstacle toward the robot's front
+   conservative starting points. Bring an obstacle toward the robot's front
    and watch `ros2 topic echo /bpx_safety/active` flip to `true` at a
    distance you're comfortable with. Adjust in
    `ros2_ws/src/bpx_safety/config/bpx_safety.yaml`.
 
-> ⚠️ If the camera topic names differ from this guide, open an issue —
-> we'll update the docs.
+Useful facts (firmware v2.1.4): IMU publishes at 400 Hz; stereo runs
+20–50 fps; VIO pose is available at 100 Hz (`/camera/camera/vio_100hz`);
+the RGB stream is portrait-oriented (1088×1920 default MJPEG); on-device
+YOLO models (person detection) can be flashed from the web dashboard.
+
+> If discovery fails: restart the ROS 2 daemon (`ros2 daemon stop &&
+> ros2 daemon start`), verify the cable, and check the device address
+> (`169.254.10.1` by default). Don't hand-edit the host's virtual network
+> interface.
 
 ---
 

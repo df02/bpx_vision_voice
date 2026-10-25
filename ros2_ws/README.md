@@ -93,7 +93,8 @@ of defense, but you lose obstacle protection — don't do this while
 walking.
 
 Test the gate without a camera by replaying a rosbag of depth images into
-`/insight9/depth` (or point `depth_topic` at any depth source) and running:
+`/camera/camera/depth/image_rect_raw` (or point `depth_topic` at any depth
+source) and running:
 
 ```bash
 ros2 topic pub -r 10 /cmd_vel_unsafe geometry_msgs/msg/Twist "{linear: {x: 0.5}}"

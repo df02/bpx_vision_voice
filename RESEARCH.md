@@ -73,7 +73,8 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 - RGB: 8.4 MP Sony IMX415, 4K, 188° diag / 157° horiz FOV, 0.01 lux.
 - Stereo depth: 2× SmartSens SG0132 global shutter, 1280×960@60 fps, 100 mm baseline, 0.1–30 m (optimal **0.2–8 m**), <2% error close range, <8% @10 m.
 - IMU: Bosch BMI088, 24 g-rated — designed for legged-locomotion vibration.
-- **ROS 2 Humble preinstalled**; USB-C (5 V/2 A, ~5 W) with USB virtual Ethernet; **Cyclone DDS** — topics appear directly on the host, no driver build needed. SDK for Ubuntu 22.04 (recommended), Win11, macOS.
+- **No host SDK at all** — the camera is ROS-native: plug in USB-C (data+power, 5 V/2 A) and it boots (~20 s) as a ROS 2 participant publishing `/camera/camera/*` topics over its link-local interface (169.254.10.1, web dashboard at `looper.local`). Firmware v2.1.4 baseline: **Fast DDS** (RMW), Humble/Jazzy/Rolling hosts supported.
+- Key v2.1.4 facts: IMU topic 400 Hz; stereo infra 20–50 fps; RGB MJPEG 1088×1920@30 (portrait!) or NV12 raw; **depth output disabled by default** (USB bandwidth — enable in dashboard, `/camera/camera/depth/image_rect_raw` @15 Hz, 544×640); `vio_100hz` pose @100 Hz for fusion; on-device YOLO model flashing via web dashboard; no depth camera_info — use `infra1/camera_info`.
 - 176 g, 129×33.8×35 mm, passive aluminum, −20…85 °C.
 - Output: pixel-synced raw view, rectified view, neural depth map; onboard SLAM pose; object detection.
 
@@ -94,14 +95,14 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 - Memory budget (16 GB): OS+ROS ≈ 2 GB, 4B LLM ≈ 4.5 GB, Whisper ≈ 0.5 GB, TensorRT vision ≈ 1 GB → ~8 GB used, ample headroom. An 8B Q4 LLM also fits.
 - Measured Orin NX 16 GB Super LLM speeds (JetPack 6.2, llama.cpp/MLC): Llama 3.1 8B Q4 ≈ 18–23 tok/s; Qwen 2.5 7B ≈ 20–23.5; 3B ≈ 40+; 1.7B ≈ 60–69; 14B ≈ 7 (practical ceiling). Note: Super Mode raises clocks but **not** memory bandwidth on the NX (stays 102 GB/s) — decode is bandwidth-bound.
 - Raspberry Pi **AI HAT+ 2** (Hailo-10H, 40 TOPS INT4, 8 GB dedicated RAM, ~$130–200, Jan 2026) runs ≤6–7B LLMs/VLMs/Whisper with Ollama integration — but duplicates what the Jetson does better (larger models, CUDA/TensorRT/VLM ecosystem, same box as vision). **Not added.** Revisit only if: (a) a resident continuous VLM is needed alongside a large LLM, (b) battery runtime demands a ~10 W always-on audio path, or (c) redundancy is desired.
-- Network: Jetson ↔ BPX via RJ45 (`10.21.20.1` net); Insight 9 ↔ Jetson via USB-C virtual Ethernet. ROS 2 spans both links with Cyclone DDS.
+- Network: Jetson ↔ BPX via RJ45 (`10.21.20.1` net); Insight 9 ↔ Jetson via USB-C virtual Ethernet (link-local). ROS 2 spans both links with **Fast DDS** (camera firmware baseline).
 
 ---
 
 ## 6. ROS 2
 
 - **ROS 2 Humble on Ubuntu 22.04 (JetPack 6.x)** — matches Jetson support *and* the Insight 9's preinstalled distro *and* the SDK's Ubuntu 22.04 requirement. Humble EOL May 2027 → plan Jazzy migration later.
-- Cyclone DDS everywhere (`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`).
+- **Fast DDS** everywhere (`RMW_IMPLEMENTATION=rmw_fastrtps_cpp`) — the Insight 9's firmware baseline; it's also Humble's default RMW. *Correction (Oct 2026): earlier notes said Cyclone; the v2.1.4 bring-up guide specifies Fast DDS.*
 - Planned nodes:
   1. **`bpx_bridge`** — wraps the SDK (Python bindings to start; C++ if we need >200 Hz joint streaming). Publishes: `joint_states` (12 DOF, names from §3.3), `sensor_msgs/Imu` (200 Hz), `nav_msgs/Odometry` (leg odom, 50 Hz), battery/temp diagnostics, motion state/gait. Subscribes: `cmd_vel` → `setVelocity()` (clamped to gait limits), gait/action services (`stand`, `sit`, `damping`, `walk`, `run`, `jump_*`), joint command topic. Handle **reconnect-zeroing** semantics (§3.4) inside the bridge: on reconnect, hold until operator/stack re-arms.
   2. **`insight9_perception`** — consumes Insight 9 topics (RGB, rectified, depth, SLAM pose, detections); TF tree: `insight9_optical → base_link`; publish detected-object markers + `vision_msgs`.
@@ -117,7 +118,7 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 - Clone SDK (done: `bpx_sdk_open/`); build examples; `pip install ./bpx_sdk_open` on Jetson and dev machine
 - Ping `10.21.20.1`, run `request_robot_state_example` — confirm telemetry (joints, IMU, odom, battery)
 - Run `motion_level_control_server_example` → `stand`, `sit`, small `velocity` commands on a test stand/tether
-- Flash Jetson: **JetPack 6.2.3 (L4T 36.5.2)**, Super Mode, ROS 2 Humble + Cyclone DDS; install Insight 9 SDK, verify topics appear
+- Flash Jetson: **JetPack 6.2.3 (L4T 36.5.2)**, Super Mode, ROS 2 Humble (Fast DDS); Insight 9 is ROS-native (no SDK) — verify `/camera/camera/*` topics appear over USB
   - *Why not 7.2.1:* JP7.2 (June 2026) is Ubuntu 24.04 → ROS 2 Jazzy, clashing with the Insight 9's preinstalled Humble (mixed Humble/Jazzy domains unsupported; documented OOM/topic issues under Fast DDS, Cyclone only mitigates). JP7.2 Orin ecosystem immature: NVIDIA boot-fix overlay for Orin NX/Nano, prerelease PyTorch wheels, no r39 jetson-containers. The ~30–40% LLM speedup matters only in Phase 3+. Migration trigger: Humble EOL (May 2027) or mature r39 container/wheel ecosystem — our stack is pure ament_python + URDF, so the port is cheap and CI-verifiable.
 - Probe `ControlMode` / Navigator switching behavior
 
