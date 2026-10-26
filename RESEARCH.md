@@ -147,39 +147,50 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 
 1. **Navigator control mode (§3.4)** — how does an external host take command authority vs. the RC/app? Test on hardware early.
 2. **DevelopingState** requirement for high-rate joint feedback — how is it entered, and is it safe alongside motion?
-3. **Insight 9 connectivity details** — USB virtual Ethernet addressing, whether topics stream over that link reliably at 60 fps; SDK maturity.
-4. **Power budget** — Orin NX (~25 W) + Insight 9 (5 W) + RPi 5 from BPX rails; confirm payload power specs with MirrorMe.
-5. **Vibration at 4 m/s** — global shutter + BMI088 help, but validate mounting stiffness; rosbag early.
-6. **Humble EOL May 2027** — plan Jazzy migration.
-7. **SDK protocol has no authentication** — keep the robot network isolated (dedicated subnet/USB-Ethernet link between Jetson and BPX is an option).
-8. SDK is early-stage ("more APIs and state fields will be added") — pin to v1.0.9, watch upstream `mirrormerobotics/bpx_sdk_open` for updates.
+3. **Insight 9 detection topic** — name/type of the onboard YOLO output (v2.1.4); confirm after flashing the person model, then finalize `bpx_follow` config.
+4. **BAT Power Port current limit** — voltage confirmed (33 V battery tap) but available continuous current for payloads is unpublished; ask MirrorMe / measure. Also whether the port is switched or always-on.
+5. **Type-C port function** on the robot — console? second SDK link? Probe at delivery.
+6. **Battery capacity (Wh)** still unpublished — runtime planning remains an estimate.
+7. **Vibration at 4 m/s** — global shutter + BMI088 help, but validate mounting stiffness; rosbag early.
+8. **Humble EOL May 2027** — plan Jazzy migration (see §5 JetPack decision).
+9. **SDK protocol has no authentication** — keep the robot network isolated.
+10. SDK is early-stage — pin to v1.0.9, watch upstream for updates.
 
 ---
 
 ## 9. Mounting & Power Plan (payload integration)
 
-**Payload manifest (thanks to the single-Jetson + on-camera-AI decisions):**
+**Official interfaces (Operating Manual §8 — confirmed from photos):**
 
-| Item | Weight | Power | Location |
-|---|---|---|---|
-| Jetson Orin NX + carrier | ~300–500 g | 15–40 W (mode-dep.) | Spine/body cavity, printed cradle |
-| Insight 9 | 176 g | 5 W | Perception head (stiff mount!) |
-| USB mic + speaker + amp | ~100 g | 1–3 W | Head or shell |
-| **Total** | **< 1 kg of 8 kg** | **~20–30 W typ, ~45 W peak** | **2 active devices + passive audio** |
+*Rear side:*
+- **BAT Power Port**: GND + **33 V** + NC — a *battery-voltage tap* (≈8S Li-ion, 33.6 V max charged). This is our Jetson power source.
+- **Gigabit Ethernet Port** (RJ45) — the SDK's `10.21.20.1` link.
+- **S-Bus port** (Signal/GND/5 V) — hobby RC receiver input.
+- **Type-C port** — function TBD (possibly console/service).
+- **E-Stop Port: normally-open, non-polar** — wire a **physical E-stop button** here. Hardware-level stop, independent of all software layers. DO THIS.
+
+*Front side:*
+- **USB port** (GND/5V/D+/D−, 4-pin USB2-style host) — audio dongle candidate.
+- **LED strip port** (GND/5V/MOSI/CLK — SPI addressable LEDs) — status light show potential.
+
+**Payload limit correction: 5 kg sustained, not the marketing 8 kg.** The manual is explicit (§1.4.10, Q12): exceeding it or running hot triggers thermal protection — the robot drops prone mid-motion. Budget accordingly (our ~1 kg payload is fine).
+
+**Not waterproof** (manual §1.6): no rain, no puddles, no high-pressure cleaning. Affects outdoor ambitions and shell design (no sealed enclosure assumed).
 
 **Power principles:**
-- Zero-or-one converter rule: choose a Jetson carrier with **wide-range input (7–36 V)** and feed from the BPX battery rail via fuse + filter. Insight 9 needs 5 V/2 A USB-C (small buck or carrier USB port). No intermediate 12 V rail.
+- Jetson carrier **must accept ≥34 V input** (33.6 V fully-charged 8S + tolerance) — wide-input carriers rated to 36 V work; verify overvoltage rating carefully, or use a 33 V→19/24 V buck. Insight 9 (5 V/2 A) off the Jetson's own USB or a dedicated buck — the robot's 5 V accessory rails (S-Bus/LED ports) are likely low-current, don't hang the camera on them.
 - Walk in the **25 W power mode**, reserve MAXN SUPER (40 W) for bench. Software-only switch (`nvpmodel`).
-- Estimated range impact: ~10% (vs typical 150–300 W locomotion draw). Confirm BPX battery Wh + whether payload rails are switched or always-on.
+- Battery capacity (Wh) still unpublished — runtime impact of ~20–30 W payload remains an estimate (~10%).
 
 **Mounting principles (4 m/s quadruped):**
 1. Vibration: Jetson SO-DIMM connector is the failure point — printed cradle + foam/gel pads + screws w/ threadlocker; strap the NVMe. Insight 9 on a stiff mount so SLAM isn't degraded by flex (its 24 g IMU assumes legged shock).
-2. Camera high on perception head; Jetson low on spine for CG (720° flips!). Head mount must be rigid.
-3. Ventilate the printed shell over the Jetson heatsink (shells are 3D-printable — use that).
-4. Three cables total: battery→Jetson, Jetson USB→camera, USB→audio. Strain-relief everywhere; keep audio lines away from motor power runs (servo EMI on mic lines).
+2. Camera high on perception head; Jetson low on the torso frame (long/short beams + fixation bases are the mounting structure) for CG. Head mount must be rigid.
+3. Ventilate around the Jetson heatsink; remember no water sealing.
+4. Cables: battery-tap→Jetson, Jetson USB→camera, front-USB→audio. Strain-relief everywhere; keep audio away from motor power runs (servo EMI on mic lines).
 5. Quick-release tray (printed dovetail) for the Jetson → easy bench development with mock mode.
+6. **Wire the physical E-stop button to the rear E-Stop Port** before first walking test.
 
-**Questions for MirrorMe at delivery:** payload rail voltage/current + connector; switched vs always-on rails; mounting bosses/pattern on spine & head; recommended CG limits for payloads.
+**Robot operational facts (manual):** app is **BAOBOT** (iOS 12+/Android 7+); robot hotspot `BPX_XXXXXX`, password `12345678`; Station-mode WiFi configured via app; log server at `http://10.21.20.1:8080/` (or `.40.1`); OTA firmware via app (lying posture, do not interrupt); first power-on requires joint reset via app; app gaits: Walk/Bound/Pace/Pronk + L/R flips + "stand up after falling" + soft E-stop; charging ≤12 h, official adapter only; storage 20–25 °C at <50% charge.
 
 **Official robot model (BPX Discord `bpx_urdf` package, integrated into `bpx_description` Oct 2026):**
 - Real kinematics/inertias/meshes (URDF + OBJ meshes; package also ships MuJoCo XML and USD for Isaac — kept out of the repo, source retained in `~/Downloads/bpx_urdf/`)

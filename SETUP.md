@@ -281,7 +281,9 @@ ros2 topic echo /bpx_bridge/joint_states
 
 ### 7.3 Using the robot's WiFi instead of the cable
 
-Join the robot's WiFi hotspot from the Jetson, then use its IP:
+The robot runs a hotspot: **`BPX_XXXXXX`, password `12345678`** (BAOBOT app
+configures Station mode via *Device Settings → Wi-Fi Network*). Join it from
+the Jetson, then use its IP:
 
 ```bash
 ros2 launch bpx_bridge bpx_bringup.launch.py robot_ip:=10.21.40.1
@@ -290,6 +292,12 @@ ros2 launch bpx_bridge bpx_bringup.launch.py robot_ip:=10.21.40.1
 > ⚠️ The WiFi link can drop while the robot moves. The bridge is built for
 > this (it disarms on every disconnect), but the **cable is strongly
 > recommended while learning**.
+>
+> 📌 Other robot facts (Operating Manual): log/server interface at
+> `http://10.21.20.1:8080/`; OTA firmware via the BAOBOT app; first
+> power-on needs a joint reset via the app; the rear panel has a
+> **normally-open E-Stop port** — wire a physical E-stop button there
+> before any walking test.
 
 ---
 
