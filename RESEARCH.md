@@ -191,7 +191,28 @@ Walk `[1.5, 0.5, 2.0]` · Bipedal `[0.8, 0.5, 1.5]` · WalkPhase `[1.5, 1.0, 2.0
 
 ---
 
-## 10. Key Links
+## 10. Headless Operation & Client UX
+
+The robot runs headless (no monitor/keyboard). Clients connect over WiFi.
+
+**Decision (Oct 2026): browser-based clients, not a native Android app.**
+
+| Phase | Client | Notes |
+|---|---|---|
+| Now | **Foxglove Studio** (browser/laptop) via `foxglove_bridge` on the Jetson | Zero-code dev cockpit: camera views, plots, diagnostics, teleop panel |
+| Phase B | **Custom web panel (PWA)** served from the Jetson (`bpx_ui`) | Big-button operating UI: mode toggles (follow/voice), status, camera stream, E-stop. "Add to Home Screen" on Android = app-like, nothing installed |
+| Phase C | Voice-first operation | `bpx_voice` becomes the primary client; the panel is monitor/fallback |
+
+**Rejected:** native Android app (months of effort to reach the same rosbridge/WebSocket path); remote desktop as the operating model (dev/debug fallback only — laggy, desktop on the power budget).
+
+**Architecture:**
+- Jetson runs its **own WiFi AP** (WPA2) → clients attach to the robot's island; Jetson routes AP↔BPX-wired-link. Works with no infrastructure in the field.
+- **Security:** rosbridge/foxglove_bridge have no auth by default; keep them on the WPA2-protected AP only, or add a token-auth reverse proxy before wider exposure.
+- **E-stop layering:** (1) BPX remote/app (`RemoteControl` mode, hardware path, independent of our stack), (2) E-stop button in every client UI (calls damping + disarm), (3) bpx_safety gate + bridge watchdog (autonomous).
+
+---
+
+## 11. Key Links
 
 - BPX: https://www.mirrorme.bot/ · https://www.mirrormetech.com/en/product_4.html
 - **BPX SDK: https://github.com/mirrormerobotics/bpx_sdk_open** (local: `~/bpx-project/bpx_sdk_open/`)
