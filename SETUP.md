@@ -379,6 +379,27 @@ In RViz2: **Add** (bottom left) → **By topic** →
 Set **Fixed Frame** (top left) to `odom`. Move the robot by hand (lying down,
 damping mode) and watch the model follow.
 
+### Better than RViz for day-to-day: Foxglove Studio
+
+Foxglove (https://foxglove.dev — free desktop app or browser) is a modern
+ROS 2 visualization cockpit. Recommended for all bring-up sessions:
+
+```bash
+# On the Jetson:
+sudo apt install ros-humble-foxglove-bridge
+ros2 run foxglove_bridge foxglove_bridge
+# Then connect from https://app.foxglove.dev or the desktop app:
+#   Open connection -> Foxglove WebSocket -> ws://<jetson-ip>:8765
+```
+
+Panels that map onto this project:
+- **Image**: the compressed color topic *and* depth render directly
+- **Teleop**: set its output topic to `cmd_vel_unsafe` → keyboard/on-screen
+  driving *through the safety gate* (primary desk-testing teleop)
+- **Plot**: `/diagnostics` fields (battery, motor temps), status topics
+- **3D**: renders the URDF + TF natively
+- **Record**: captures sessions to MCAP (readable by rosbag2 too)
+
 ---
 
 ## Part 10 — Insight 9 camera

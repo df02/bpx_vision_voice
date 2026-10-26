@@ -221,3 +221,4 @@ The robot runs headless (no monitor/keyboard). Clients connect over WiFi.
 - RealSense (fallback): https://realsenseai.com/ · D555: https://realsenseai.com/products/d555-poe/
 - Jetson Super Mode: NVIDIA blog "JetPack 6.2 Brings Super Mode to Jetson Orin Nano and NX"
 - Voice/LLM refs: "Building a Local Robot Brain on Jetson Orin Nano Super" (thomasthelliez.com); NVIDIA forum: Open Voice OS on Jetson Orin Nano
+- Foxglove Studio (dev cockpit / client UX): https://foxglove.dev · bridge: `ros-humble-foxglove-bridge`
