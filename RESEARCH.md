@@ -223,7 +223,35 @@ The robot runs headless (no monitor/keyboard). Clients connect over WiFi.
 
 ---
 
-## 11. Key Links
+## 11. Odin1 Integration Plan (optional second camera — documented, deferred)
+
+Several BPX community members (incl. us) own the Manifold Odin1. Assessment completed Oct/Nov 2026; **code integration deferred** until the Insight 9 chain is validated and an Odin1 is on the bench.
+
+**Ecosystem status:**
+- `manifoldsdk/odin_ros_driver` v0.14.4 (Apache-2.0): **ROS 2 Humble officially supported** (ROS1 = legacy). Driver runs on the *host* (Jetson) via USB3 + libusb; ARM static lib shipped. Deps: OpenCV, yaml-cpp, libusb, Eigen.
+- `ManifoldTechLtd/Odin-Nav-Stack`: **ROS1 Noetic + Go2-specific** — reference only. We take concepts: map→odom TF from relocalization, pcd2pgm mapping pipeline, NeuPAN planner (requires per-chassis DUNE model retraining), semantic nav/VLM demos. Do not vendor.
+- Local docs in `~/Downloads/odin1/` (Quick Start v1.5.0, relocalization manuals, call-flow): power = DC5521, **12 V typ / 9–26 V max, ~11 W typ / 24 W peak**.
+
+**Why both cameras at once is clean:**
+- No topic collisions: `/camera/camera/*` (Insight 9) vs `/odin1/*` (Odin1); both ROS 2 Humble, one DDS domain.
+- Complementary roles, zero code overlap: **Insight 9 = reactive layer** (safety gate, follow-me, onboard person detection); **Odin1 = spatial layer** (3D SLAM w/ loop closure, persistent maps, relocalization publishing map→odom TF, 70 m point cloud, 400 Hz IMU).
+- `bpx_safety`, `bpx_bridge`, `bpx_follow` unchanged — Odin1 only adds downstream consumers.
+- **Strategic: relocalization mode (`custom_map_mode: 2`) publishes map→odom TF after matching a saved map — this replaces most of the planned slam_toolbox work.** With an Odin1, `bpx_nav` = robot_localization EKF (leg odom + VIO + Odin IMU) + consume Odin's map TF + Nav2/NeuPAN.
+
+**Integration work items (when scheduled):**
+1. Vendor `odin_ros_driver` into `ros2_ws/src` (CMake ROS2 pkg; CI can build it — amd static lib exists).
+2. Jetson setup: udev rule (`2207:0019`, MODE 0666, plugdev) + **`usbfs_memory_mb=1024` kernel param** (driver FAQ 5.15: embedded hosts hit LIBUSB_ERROR_NO_MEM otherwise).
+3. URDF: `odin1` mount frames (v0.14 body frame = `imu`; driver publishes odom→imu→lidar internally).
+4. Launch profile: `perception:=insight9|odin|both` in bring-up; tuned `control_command.yaml` (mode, stream toggles to bound CPU, `use_host_ros_time`, `tf_extra_publish_rate: 0` on Humble).
+5. Power: **33.6 V→12 V buck (DC5521, ≥3 A)** from the BAT port — the one required converter in the build (Odin1's 26 V max input excludes a direct battery-tap feed).
+6. Watch-outs: `ROS_LOCALHOST_ONLY=1` if driver disconnects on our multi-link network (FAQ 5.8); rosbag QoS overrides for the 400 Hz topics (FAQ 5.13); `recorddata` writes ~1 GB/min.
+7. Mount: 280 g; Manifold publishes mount STLs (Go2 exists) — a BPX mount print is a community contribution opportunity.
+
+**Effort estimate:** ~0.5 day driver bring-up on Jetson + ~1 day profile/URDF/config integration; Nav2/NeuPAN phase separate.
+
+---
+
+## 12. Key Links
 
 - BPX: https://www.mirrorme.bot/ · https://www.mirrormetech.com/en/product_4.html
 - **BPX SDK: https://github.com/mirrormerobotics/bpx_sdk_open** (local: `~/bpx-project/bpx_sdk_open/`)
@@ -233,3 +261,4 @@ The robot runs headless (no monitor/keyboard). Clients connect over WiFi.
 - Jetson Super Mode: NVIDIA blog "JetPack 6.2 Brings Super Mode to Jetson Orin Nano and NX"
 - Voice/LLM refs: "Building a Local Robot Brain on Jetson Orin Nano Super" (thomasthelliez.com); NVIDIA forum: Open Voice OS on Jetson Orin Nano
 - Foxglove Studio (dev cockpit / client UX): https://foxglove.dev · bridge: `ros-humble-foxglove-bridge`
+- Odin1: https://www.3dmanifold.com/products/odin1/ · driver: https://github.com/manifoldsdk/odin_ros_driver (ROS2 Humble) · nav stack (ROS1 reference): https://github.com/ManifoldTechLtd/Odin-Nav-Stack · wiki: https://manifoldtechltd.github.io/wiki/Odin1/Cover.html
